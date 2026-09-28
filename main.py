@@ -17,6 +17,7 @@ CS2 Infinite Match Log Bot
 
 import threading
 from flask import Flask
+import requests
 import json
 import os
 import random
@@ -1050,3 +1051,30 @@ if __name__ == "__main__":
     # Запуск твоего бесконечного бота
     main()
 
+import requests
+
+def pinger():
+    """Каждые 10 минут шлет запрос сам на себя, чтобы Render не засыпал"""
+    # Замени эту ссылку на ТОЧНЫЙ URL твоего приложения с панели Render
+    # Она написана на твоем скрине: https://onrender.com
+    url = "https://onrender.com" 
+    while True:
+        try:
+            requests.get(url)
+            print("[Pinger] Успешный самопинг. Сервер не уснет!")
+        except Exception as e:
+            print("[Pinger] Ошибка пинга:", e)
+        time.sleep(600) # 10 минут
+
+if __name__ == "__main__":
+    if BOT_TOKEN.startswith("PASTE_"):
+        raise SystemExit("Укажи BOT_TOKEN.")
+
+    # 1. Запуск веб-сервера
+    threading.Thread(target=run_web_server, daemon=True).start()
+
+    # 2. Запуск фонового пингера (чтобы не спал)
+    threading.Thread(target=pinger, daemon=True).start()
+
+    # 3. Запуск бесконечного цикла катки
+    main_bot_loop()
