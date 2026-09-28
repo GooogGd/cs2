@@ -31,7 +31,7 @@ from telebot.apihelper import ApiTelegramException
 #                        НАСТРОЙКИ
 # ============================================================
 BOT_TOKEN = "8982168540:AAEatGykSTQG5-c4pJz-85ajHnF5CbluLpk"
-CHANNEL_ID = "-1004389910678"        # "@username" канала или числовой ID вида -1001234567890
+CHANNEL_ID = "-1003995043140"        # "@username" канала или числовой ID вида -1001234567890
 
 app = Flask('')
 
