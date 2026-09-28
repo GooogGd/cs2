@@ -866,7 +866,9 @@ def pause():
 
 
 def play_round(global_round):
-    """Проигрывает один раунд. Возвращает (текст_раунда, сторона_победителя)."""
+    """Проигрывает один раунд.
+    Возвращает (заголовок_раунда, список_событий, итог_раунда, сторона_победителя).
+    Каждый элемент потом отправляется отдельным сообщением."""
     round_type = pick_round_type()
 
     # каждый раунд - свежее лобби из 10 случайных игроков
@@ -923,10 +925,8 @@ def play_round(global_round):
             winner_side = random.choice(["T", "CT"])
         result_text = random.choice(BOMB_TEXTS[winner_side])
 
-    parts = ["🏁 " + bold("Раунд №" + str(global_round)), esc(ROUND_TYPE_LABEL[round_type]), ""]
-    parts.extend(block + "\n" for block in event_blocks)
-    parts.append(esc(result_text))
-    return "\n".join(parts), winner_side
+    header = "🏁 " + bold("Раунд №" + str(global_round)) + "\n" + esc(ROUND_TYPE_LABEL[round_type])
+    return header, event_blocks, esc(result_text), winner_side
 
 
 def score_text(t_score, ct_score):
@@ -1013,17 +1013,26 @@ def main():
     try:
         while True:
             global_round += 1
-            round_msg, winner_side = play_round(global_round)
+            header_msg, event_msgs, result_msg, winner_side = play_round(global_round)
             if winner_side == "T":
                 t_score += 1
             else:
                 ct_score += 1
 
-            # сообщение 1: раунд и события
-            send(round_msg)
+            # сообщение: заголовок раунда
+            send(header_msg)
             pause()
 
-            # сообщение 2: счёт
+            # сообщения: каждое событие отдельно
+            for event_msg in event_msgs:
+                send(event_msg)
+                pause()
+
+            # сообщение: итог раунда (бомба / уничтожение)
+            send(result_msg)
+            pause()
+
+            # сообщение: счёт
             send(score_text(t_score, ct_score))
             save_state(global_round, t_score, ct_score)
             pause()
